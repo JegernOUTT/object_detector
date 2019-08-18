@@ -1,0 +1,2 @@
+class Keypoint:
+    pass
