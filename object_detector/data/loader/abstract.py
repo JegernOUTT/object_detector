@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from data.structs import DataLoaderResult, LoaderConfig
+from object_detector.data.structs import DataLoaderResult, LoaderConfig
 
 
 class AbstractLoader(ABC):

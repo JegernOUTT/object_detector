@@ -6,7 +6,7 @@ from typing import List, Union
 
 import torch
 
-from tools.checkpoint import load_checkpoint
+from object_detector.tools.checkpoint import load_checkpoint
 
 
 class InitializeType(Enum):

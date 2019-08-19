@@ -1,8 +1,8 @@
-from typing import Union, List
+from typing import List
 
-from modelling.abstract import AbstractModelParams, AbstractModel
-from modelling.detectors.detector import Detector
-from modelling.model_pipeline import ModelPipeline
+from object_detector.modelling.abstract import AbstractModelParams, AbstractModel
+from object_detector.modelling.detectors.detector import Detector
+from object_detector.modelling.model_pipeline import ModelPipeline
 
 
 class DetectorBuilder:

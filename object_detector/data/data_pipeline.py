@@ -3,12 +3,12 @@ from typing import List, Tuple, Union
 import torch
 import tqdm as tqdm
 
-from data.augmenter.abstract import AbstractAugmenter
-from data.loader.abstract import AbstractLoader
-from data.model_heads_formatters.abstract import AbstractHeadFormatter
-from data.structs import DataLoaderResult, ImageInformation, AnnotationInformation
-from tools.helpers import list_if_not_list
-from tools.image.image import read_image, tensor_from_rgb_image
+from object_detector.data.augmenter.abstract import AbstractAugmenter
+from object_detector.data.loader.abstract import AbstractLoader
+from object_detector.data.model_heads_formatters.abstract import AbstractHeadFormatter
+from object_detector.data.structs import DataLoaderResult, ImageInformation, AnnotationInformation
+from object_detector.tools.helpers import list_if_not_list
+from object_detector.tools.image.image import read_image, tensor_from_rgb_image
 
 
 class DataPipeline(torch.utils.data.Dataset):

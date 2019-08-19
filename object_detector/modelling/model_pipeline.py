@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Union, List
 
-from modelling.abstract import BaseModelParams
-from tools.helpers import list_if_not_list
+from object_detector.modelling.abstract import BaseModelParams
+from object_detector.tools.helpers import list_if_not_list
 
 
 class InputType(Enum):

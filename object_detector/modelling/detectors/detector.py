@@ -2,8 +2,8 @@ from typing import List, Union
 
 import torch
 
-from modelling.abstract import AbstractModel, CheckpointsParams
-from modelling.model_pipeline import Stage, InputType, OutputType, Model2Layer
+from object_detector.modelling.abstract import AbstractModel, CheckpointsParams
+from object_detector.modelling.model_pipeline import Stage, Model2Layer, InputType, OutputType
 
 
 class Detector(torch.nn.Module, AbstractModel):

@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
-from data.structs import AnnotationInformation, ImageInformation, AugmenterConfig
-from tools.image.image import Image
+import numpy as np
+from object_detector.data.structs import AugmenterConfig, AnnotationInformation
 
 
 class AbstractAugmenter(ABC):

@@ -2,12 +2,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Any, Optional
 
-from tools.bbox.bbox import Bbox
-from tools.keypoint.keypoint import Keypoint
-from tools.mask.mask import Mask
-from tools.structs import Size2D
+from object_detector.tools.bbox.bbox import Bbox
+from object_detector.tools.keypoint.keypoint import Keypoint
 
 import numpy as np
+
+from object_detector.tools.mask.mask import Mask
 
 
 @dataclass

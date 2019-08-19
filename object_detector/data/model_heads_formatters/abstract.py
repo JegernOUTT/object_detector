@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from data.structs import AnnotationInformation, HeadFormatterConfig
+from object_detector.data.structs import HeadFormatterConfig, AnnotationInformation
 
 
 class AbstractHeadFormatter(ABC):
