@@ -7,11 +7,12 @@ from typing import List, Any, Optional, Tuple, Type
 
 from object_detector.data.loader.abstract import AbstractLoader
 from object_detector.tools.bbox.bbox import Bbox
-from object_detector.tools.keypoint.keypoint import Keypoint
+from object_detector.tools.keypoint.keypoints import Keypoints
 
 import numpy as np
 
 from object_detector.tools.mask.mask import Mask
+from object_detector.tools.polygon.polygon import Polygon
 
 
 @dataclass
@@ -53,7 +54,7 @@ class ImageInformation:
 
 @dataclass
 class AnnotationInformation:
-    annotation: Optional[Bbox, Mask, Keypoint]
+    annotation: Optional[Bbox, Mask, List[Keypoints], Polygon]
     confidence: float
     category_id: int
     ignore: bool

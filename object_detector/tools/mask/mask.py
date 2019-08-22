@@ -12,6 +12,7 @@ from object_detector.tools.structs import Size2D
 @dataclass(frozen=True)
 class Mask:
     mask: np.ndarray
+    meta: any = None
 
 
 class CocoMaskWrapper:
