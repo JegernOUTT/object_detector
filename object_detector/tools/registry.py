@@ -1,7 +1,5 @@
 import inspect
 
-import mmcv as mmcv
-
 
 class Registry(object):
     def __init__(self, name):
@@ -56,7 +54,7 @@ def build_from_cfg(cfg, registry, default_args=None):
     assert isinstance(default_args, dict) or default_args is None
     args = cfg.copy()
     obj_type = args.pop('type')
-    if mmcv.is_str(obj_type):
+    if obj_type == str or obj_type is str:
         obj_type = registry.get(obj_type)
         if obj_type is None:
             raise KeyError('{} is not in the {} registry'.format(

@@ -3,7 +3,7 @@ from typing import List, Tuple, Union
 import torch
 import tqdm as tqdm
 
-from object_detector.data.augmenter.abstract import AbstractAugmenter
+from object_detector.data.transform.abstract import AbstractTransformer
 from object_detector.data.loader.abstract import AbstractLoader
 from object_detector.data.model_heads_formatters.abstract import AbstractHeadFormatter
 from object_detector.data.structs import DataLoaderResult, ImageInformation, AnnotationInformation
@@ -14,10 +14,11 @@ from object_detector.tools.image.image import read_image, tensor_from_rgb_image
 class DataPipeline(torch.utils.data.Dataset):
     def __init__(self,
                  loaders: Union[List[AbstractLoader], AbstractLoader],
-                 augmenters: Union[List[AbstractAugmenter], AbstractAugmenter],
+                 transformers: Union[List[AbstractTransformer], AbstractTransformer],
                  head_formatters: Union[List[AbstractHeadFormatter], AbstractHeadFormatter]):
         self._loaders: List[AbstractLoader] = list_if_not_list(loaders)
-        self._augmenters: List[AbstractAugmenter] = sorted(list_if_not_list(augmenters), key=lambda x: x.get_order())
+        self._transformers: List[AbstractTransformer] = sorted(list_if_not_list(transformers),
+                                                               key=lambda x: x.get_order())
         self._head_formatters: List[AbstractHeadFormatter] = list_if_not_list(head_formatters)
 
         self._data_cache: List[DataLoaderResult] = []
@@ -43,8 +44,8 @@ class DataPipeline(torch.utils.data.Dataset):
         image_info, annotations = self._get_item_by_idx(idx)
         image = read_image(image_info)
 
-        for aug in self._augmenters:
-            image, annotations = aug(image=image, annotations=annotations)
+        for transformer in self._transformers:
+            image, annotations = transformer(image=image, annotations=annotations)
 
         model_data = {}
         for head_formatter in self._head_formatters:

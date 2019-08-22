@@ -2,12 +2,12 @@ from abc import ABC, abstractmethod
 from typing import List, Tuple
 
 import numpy as np
-from object_detector.data.structs import AugmenterConfig, AnnotationInformation
+from object_detector.data.structs import TransformConfig, AnnotationInformation
 
 
-class AbstractAugmenter(ABC):
-    def __init__(self, augmenter_config: AugmenterConfig, order: int):
-        self._config: AugmenterConfig = augmenter_config
+class AbstractTransformer(ABC):
+    def __init__(self, transform_config: TransformConfig, order: int):
+        self._config: TransformConfig = transform_config
         self._order: int = order
 
     def get_order(self) -> int:
