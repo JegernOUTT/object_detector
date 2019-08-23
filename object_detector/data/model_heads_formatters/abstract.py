@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import List
 
 import numpy as np
 
@@ -7,8 +8,8 @@ from object_detector.data.structs import HeadFormatterConfig, AnnotationInformat
 
 class AbstractHeadFormatter(ABC):
     def __init__(self, head_formatter_config: HeadFormatterConfig):
-        self._config: HeadFormatterConfig = head_formatter_config
+        self._config = head_formatter_config
 
     @abstractmethod
-    def __call__(self, image: np.ndarray, annotations: AnnotationInformation) -> dict:
+    def __call__(self, image: np.ndarray, annotations: List[AnnotationInformation]) -> dict:
         pass

@@ -1,22 +1,20 @@
-from abc import ABC, abstractproperty
-from enum import Enum
-
+from abc import ABC
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
-from typing import List, Any, Optional, Tuple, Type
-
-from object_detector.data.loader.abstract import AbstractLoader
-from object_detector.tools.bbox.bbox import Bbox
-from object_detector.tools.keypoint.keypoints import Keypoints
+from typing import List, Any, Tuple, Union
 
 import numpy as np
 
+from object_detector.tools.bbox.bbox import Bbox
+from object_detector.tools.keypoint.keypoints import Keypoints
 from object_detector.tools.mask.mask import Mask
 from object_detector.tools.polygon.polygon import Polygon
+from object_detector.tools.registry import RegistryConfig
 
 
 @dataclass
-class LoaderConfig(ABC):
+class LoaderConfig(ABC, RegistryConfig):
     class LoadType(Enum):
         Skip = 0
         AsIgnore = 1
@@ -25,24 +23,20 @@ class LoaderConfig(ABC):
     bbox_minmax_sizes: Tuple[float, float, float, float] = (0., 0., 1., 1.)
     filtered_bbox_skip_type: LoadType = LoadType.AsIgnore
 
-    @abstractproperty
-    def _loader_type(self) -> Type[AbstractLoader]:
-        pass
-
 
 @dataclass
-class DatasetConfig:
+class DatasetConfig(ABC, RegistryConfig):
     pass
 
 
 @dataclass
-class TransformConfig:
+class TransformConfig(ABC, RegistryConfig):
     pass
 
 
 @dataclass
-class HeadFormatterConfig:
-    pass
+class HeadFormatterConfig(ABC, RegistryConfig):
+    categories_count: int
 
 
 @dataclass
@@ -54,7 +48,7 @@ class ImageInformation:
 
 @dataclass
 class AnnotationInformation:
-    annotation: Optional[Bbox, Mask, List[Keypoints], Polygon]
+    annotation: Union[Bbox, Mask, List[Keypoints], Polygon]
     confidence: float
     category_id: int
     ignore: bool

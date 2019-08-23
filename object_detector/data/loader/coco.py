@@ -21,7 +21,7 @@ class CocoLoaderConfig(LoaderConfig):
     load_bbox_masks: bool = False
     load_keypoints: bool = False
 
-    def _loader_type(self) -> Type['CocoDataset']:
+    def owner_type(self) -> Type['CocoDataset']:
         return CocoDataset
 
 

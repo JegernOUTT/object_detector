@@ -1,4 +1,6 @@
 import inspect
+from abc import abstractmethod, ABC
+from dataclasses import dataclass
 
 
 class Registry(object):
@@ -66,3 +68,10 @@ def build_from_cfg(cfg, registry, default_args=None):
         for name, value in default_args.items():
             args.setdefault(name, value)
     return obj_type(**args)
+
+
+@dataclass
+class RegistryConfig(ABC):
+    @abstractmethod
+    def owner_type(self) -> type:
+        pass
