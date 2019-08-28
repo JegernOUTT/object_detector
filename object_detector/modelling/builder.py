@@ -18,7 +18,7 @@ class DetectorBuilder:
     def build_detector(self) -> Detector:
         modules = []
         stages = self._model_pipeline.get_stages()
-        stages_by_model_name = {stage.model: stage for stage in stages}
+        stages_by_model_name = {stage.module: stage for stage in stages}
 
         for params in self._model_params:
             module: AbstractModel = ...  #  Create by name from registry

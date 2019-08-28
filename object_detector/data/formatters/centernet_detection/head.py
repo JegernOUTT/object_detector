@@ -3,7 +3,7 @@ from typing import List, Type
 
 import numpy as np
 
-from object_detector.data.model_heads_formatters.abstract import AbstractHeadFormatter
+from object_detector.data.formatters.abstract import AbstractHeadFormatter
 from object_detector.data.structs import AnnotationInformation, HeadFormatterConfig
 from object_detector.tools.bbox.bbox import Bbox
 from object_detector.tools.structs import Size2D

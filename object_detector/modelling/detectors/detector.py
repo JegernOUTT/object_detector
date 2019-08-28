@@ -48,7 +48,7 @@ class Detector(torch.nn.Module, AbstractModel):
             InputType.Image: image
         }
         for idx, stage in enumerate(self._stages):
-            module = self._modules[stage.model]
+            module = self._modules[stage.module]
             outputs = module(self._get_inputs_from_buffer(stage.in_, required_output_buffer))
             for out, layer_name in zip(outputs, stage.out):
                 required_output_buffer[(module.name, layer_name)] = out

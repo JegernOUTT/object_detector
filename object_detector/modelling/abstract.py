@@ -48,11 +48,19 @@ class AbstractModel(ABC, torch.nn.Module):
     def __init__(self, params: BaseModelParams):
         super().__init__()
         self._name = params.name
+        self._possible_inputs = []
+        self._possible_outputs = []
         self._output_names = []
         self._inputs_names = []
 
     def get_name(self) -> str:
         return self._name
+
+    def _add_possible_input(self, module: torch.nn.Module, stride: int):
+        self._possible_inputs.append((module, stride))
+
+    def _add_possible_output(self, module: torch.nn.Module, stride: int):
+        self._possible_outputs.append((module, stride))
 
     def set_inputs(self, inputs_names: List[str]):
         self._inputs_names = inputs_names

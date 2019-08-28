@@ -23,7 +23,7 @@ class Model2Layer:
 
 @dataclass
 class Stage:
-    model: str
+    module: str
     in_: Union[List[Model2Layer], List[InputType], Model2Layer, InputType]
     out: Union[List[str], List[OutputType], str, OutputType]
 
@@ -54,23 +54,23 @@ class ModelPipeline:
     def get_stages(self) -> List[Stage]:
         return self._stages
 
-    def add_stage(self, stage) -> 'ModelPipeline':
-        assert stage.model not in self._used_models, \
-            f'{stage.model} was used on early stages. Use each model single time'
+    def add_stage(self, stage: Stage) -> 'ModelPipeline':
+        assert stage.module not in self._used_models, \
+            f'{stage.module} was used on early stages. Use each model single time'
 
         assert all(l.layer in self._model_names[l.model]['possible_out'] for l in stage.in_
                    if type(l) != InputType), \
-            f'Unrecognized input layer name found for model {stage.model}, check input layers: {stage.in_}'
+            f'Unrecognized input layer name found for model {stage.module}, check input layers: {stage.in_}'
 
-        assert all(l in self._model_names[stage.model]['possible_out'] for l in stage.out
+        assert all(l in self._model_names[stage.module]['possible_out'] for l in stage.out
                    if type(l) != OutputType), \
-            f'Unrecognized output layer name found for model {stage.model}, check output layers: {stage.out}'
+            f'Unrecognized output layer name found for model {stage.module}, check output layers: {stage.out}'
 
-        self._used_models.add(stage.model)
+        self._used_models.add(stage.module)
         self._current_available_layers.update(stage.out)
 
         if OutputType.All in stage.out:
-            stage.out = self._model_names[stage.model]['possible_out']
+            stage.out = self._model_names[stage.module]['possible_out']
 
         # Save all outputs in this Mode
         if OutputType.LastOutput in stage.out:

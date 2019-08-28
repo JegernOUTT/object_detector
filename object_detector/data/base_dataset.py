@@ -3,7 +3,7 @@ from typing import List, Union
 import torch
 
 from object_detector.data.loader.abstract import AbstractLoader
-from object_detector.data.model_heads_formatters.abstract import AbstractHeadFormatter
+from object_detector.data.formatters.abstract import AbstractHeadFormatter
 from object_detector.data.transform.abstract import AbstractTransformer
 from object_detector.tools.helpers import list_if_not_list
 from object_detector.tools.image.image import read_image, tensor_from_rgb_image
