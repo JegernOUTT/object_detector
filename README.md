@@ -13,79 +13,6 @@ Base settings:
 categories = ['person']
 ```
 
-Model configuration part:
-```python
-# Create models
-dla = DLA34Config(pretrained='').create_modulde()
-base_fpn = FPNConfig(inputs_count=3).create_module()
-roi_align = RoiAlignConfig().create_module()
-masks_fpn = SmallFPNConfig(inputs_count=4).create_module()
-centernet_detection_heads = CenternetDetectionHeadsConfig().create_module()
-centernet_pose_heads = CenternetPoseHeadsConfig().create_module()
-mask_head = BboxSegmentationMaskHeadConfig().create_module()
-yolo3_detection_heads = Yolo3DetectionsHeadConfig(fpn_strides=[16, 32]).create_module()
-
-# Create losses
-centernet_detection_loss = CenternetDetectionLossConfig().create_module()
-centernet_pose_loss = CenternetPoseLossConfig().create_module()
-mask_loss = MaskLossConfig().create_module()
-yolo3_detection_loss = Yolo3LossConfig().create_module()
-giou_centernet_detection_loss = GIoULossConfig().create_module()
-giou_yolo3_detection_loss = GIoULossConfig().create_module()
-
-# Create predict heads
-centernet_bbox_decoder = CenternetDetectionEncodeDecodeConfig.create_decoder()
-centernet_pose_decoder = CenternetPoseEncodeDecodeConfig.create_decoder()
-mask_decoder = MaskEncodeDecodeConfig.create_decoder()
-yolo3_bbox_decoder = Yolo3EncodeDecodeConfig.create_decoder()
-
-# Create detectors
-train_model = ModelPipelineBuilder \
-    .with_models([dla, base_fpn, roi_align, masks_fpn,
-                  centernet_detection_heads, centernet_pose_heads,
-                  mask_head]) \
-        .add_stage(Stage(module=dla, in_=InputType.Image)) \
-        .add_stage(Stage(module=base_fpn, in_=dla.get_outputs(strides=(8, 16, 32)))) \
-        .add_stage(Stage(module=masks_fpn, in_=dla.get_outputs(strides=(4, 8, 16, 32)))) \
-        .add_stage(Stage(module=roi_align, in_=masks_fpn.get_outputs(strides=(4, 8, 16, 32)))) \
-        # Heads
-        .add_stage(Stage(module=centernet_detection_heads, in_=base_fpn.get_outputs())) \
-        .add_stage(Stage(module=centernet_pose_heads, in_=base_fpn.get_outputs())) \
-        .add_stage(Stage(module=mask_head, in_=roi_align.get_outputs())) \
-        .add_stage(Stage(module=yolo3_detection_heads, in_=base_fpn.get_outputs(strides=(16, 32)))) \
-        # Common losses
-        .add_stage(Stage(module=centernet_detection_loss, in_=centernet_detection_heads.get_outputs()))\
-        .add_stage(Stage(module=centernet_pose_loss, in_=centernet_pose_heads.get_outputs()))\
-        .add_stage(Stage(module=mask_loss, in_=mask_head.get_outputs())) \
-        .add_stage(Stage(module=yolo3_detection_loss, in_=yolo3_detection_heads.get_outputs())) \
-        # Extra losses
-        .add_stage(Stage(module=centernet_bbox_decoder, in_=centernet_detection_heads.get_outputs())) \
-        .add_stage(Stage(config=giou_centernet_detection_loss, in_=centernet_bbox_decoder.get_outputs())) \
-        .add_stage(Stage(config=giou_yolo3_detection_loss, in_=yolo3_detection_heads.get_outputs())) \
-    .create()
-
-prediction_model = ModelPipelineBuilder\
-    .with_models([dla, base_fpn, roi_align, masks_fpn,
-                  centernet_detection_heads, centernet_pose_heads,
-                  mask_head]) \
-        .add_stage(Stage(module=dla, in_=InputType.Image)) \
-        .add_stage(Stage(module=base_fpn, in_=dla.get_outputs(strides=(8, 16, 32)))) \
-        .add_stage(Stage(module=masks_fpn, in_=dla.get_outputs(strides=(4, 8, 16, 32)))) \
-        .add_stage(Stage(module=roi_align, in_=masks_fpn.get_outputs(strides=(4, 8, 16, 32)))) \
-        # Heads
-        .add_stage(Stage(module=centernet_detection_heads, in_=base_fpn.get_outputs())) \
-        .add_stage(Stage(module=centernet_pose_heads, in_=base_fpn.get_outputs())) \
-        .add_stage(Stage(module=mask_head, in_=roi_align.get_outputs())) \
-        .add_stage(Stage(module=yolo3_detection_heads, in_=base_fpn.get_outputs(strides=(16, 32)))) \
-        # Heads decoders
-        .add_stage(Stage(module=centernet_bbox_decoder, in_=centernet_detection_heads.get_outputs()))
-        .add_stage(Stage(module=centernet_pose_decoder, in_=centernet_pose_heads.get_outputs()))
-        .add_stage(Stage(module=mask_decoder, in_=mask_head.get_outputs())) \
-        .add_stage(Stage(module=yolo3_bbox_decoder, in_=yolo3_detection_heads.get_outputs())) \
-    .create()
-```
-
-
 Dataset configuration part:
 ```python
 data_loaders = [
@@ -95,12 +22,53 @@ transformers = {
     0: ImgaugImageFormatterConfig(new_image_size=(100, 100)),
     1: ImgaugTransformerConfig(aug_pipeline=iaa.Noop())
 }
-formatters = [
-    CenterNetHeadFormatterConfig()
-]
 ```
 
 Ground truth encoding part:
 ```python
+centernet_bbox_encode_decode_config = CenternetDetectionEncodeDecodeConfig()
+centernet_pose_encode_decode_config = CenternetPoseEncodeDecodeConfig()
+mask_encoder_encode_decode_config = MaskEncodeDecodeConfig()
+yolo3_bbox_encode_decode_config = Yolo3EncodeDecodeConfig()
+```
 
+Model configuration part:
+```python
+# Create models
+dla = DLA34Config(pretrained='')
+base_fpn = FPNConfig(inputs_count=3)
+roi_align = RoiAlignConfig()
+masks_fpn = SmallFPNConfig(inputs_count=4)
+centernet_detection_heads = CenternetDetectionHeadsConfig()
+centernet_pose_heads = CenternetPoseHeadsConfig()
+mask_head = BboxSegmentationMaskHeadConfig()
+yolo3_detection_heads = Yolo3DetectionsHeadConfig(fpn_strides=[16, 32])
+
+# Create losses
+centernet_detection_loss = CenternetDetectionLossConfig()
+centernet_pose_loss = CenternetPoseLossConfig()
+mask_loss = MaskLossConfig()
+yolo3_detection_loss = Yolo3LossConfig()
+giou_centernet_detection_loss = GIoULossConfig()
+giou_yolo3_detection_loss = GIoULossConfig()
+
+# Create detectors
+detector = ModelPipelineBuilder \
+        .add_stage(ModuleStage(dla, in_=InputType.Image)) \
+        .add_stage(ModuleStage(base_fpn, in_=dla.get_outputs(strides=(8, 16, 32)))) \
+        .add_stage(ModuleStage(masks_fpn, in_=dla.get_outputs(strides=(4, 8, 16, 32)))) \
+        .add_stage(ModuleStage(roi_align, in_=masks_fpn.get_outputs(strides=(4, 8, 16, 32)))) \
+        # Heads
+        .add_stage(HeadStage(centernet_detection_heads, in_=base_fpn.get_outputs(), 
+                             encoder_decoder=centernet_bbox_encode_decode_config, loss=centernet_detection_loss)) \
+        .add_stage(HeadStage(centernet_pose_heads, in_=base_fpn.get_outputs(),
+                             encoder_decoder=centernet_pose_encode_decode_config, loss=centernet_pose_loss)) \
+        .add_stage(HeadStage(mask_head, in_=roi_align.get_outputs(),
+                             encoder_decoder=mask_encoder_encode_decode_config, loss=mask_loss)) \
+        .add_stage(HeadStage(yolo3_detection_heads, in_=base_fpn.get_outputs(strides=(16, 32)),
+                             encoder_decoder=yolo3_bbox_encode_decode_config, loss=yolo3_detection_loss)) \
+        # Extra losses
+        .add_stage(LossStage(giou_centernet_detection_loss, in_=centernet_detection_heads.get_decode_outputs())) \
+        .add_stage(LossStage(giou_yolo3_detection_loss, in_=yolo3_detection_heads.get_outputs())) \
+    .create()
 ```
