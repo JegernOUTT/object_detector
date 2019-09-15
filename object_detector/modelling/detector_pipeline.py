@@ -1,11 +1,9 @@
 from typing import List
 
-from object_detector.modelling.pipeline_builder import BuilderStage
-
 
 class ModelPipeline:
     def __init__(self, stages):
-        self._stages: List[BuilderStage] = stages
+        self._stages: List['BuilderStage'] = stages
 
         self._loss_stages = [stage for stage in self._stages if stage._loss_config is not None]
         self._final_stages = [stage for stage in self._stages if stage._final]

@@ -1,39 +1,7 @@
-from abc import abstractmethod
-from dataclasses import dataclass
-from typing import List, Set, Any
+from typing import List, Any
 
-from object_detector.modelling.abstract import AbstractModel
 from object_detector.modelling.detector_pipeline import ModelPipeline
 from object_detector.modelling.detectors.detector import Detector
-
-
-@dataclass
-class ModuleConfig:
-    name: str = ''
-
-    def get_outputs(self, strides=None, names=None):
-        if strides is not None:
-            return self._get_outputs_by_strides(strides=strides)
-        elif names is not None:
-            return self._get_outputs_by_names(names=names)
-        else:
-            return self._get_all_outputs()
-
-    @abstractmethod
-    def create_module(self) -> AbstractModel:
-        pass
-
-    @abstractmethod
-    def _get_outputs_by_strides(self, strides: List[int]):
-        pass
-
-    @abstractmethod
-    def _get_outputs_by_names(self, names: List[str]):
-        pass
-
-    @abstractmethod
-    def _get_all_outputs(self):
-        pass
 
 
 class BuilderStage:
@@ -41,17 +9,17 @@ class BuilderStage:
         self._builder = builder
 
         self._stage_config = stage_config
-        self._input_layer_names = {}
-        self._output_layer_names = {}
+        self._input_layer_names = []
+        self._output_layer_names = []
         self._encode_decode_config = None
         self._loss_config = None
         self._final = False
 
-    def input(self, layer_names: Set[str]):
+    def input(self, layer_names: List[str]):
         self._input_layer_names = layer_names
         return self
 
-    def output(self, layer_names: Set[str]):
+    def output(self, layer_names: List[str]):
         self._output_layer_names = layer_names
         return self
 
@@ -92,23 +60,31 @@ class DetectorPipelineBuilder:
 
 
 if __name__ == '__main__':
-    dla_config = None
+    from object_detector.modelling.models.dla.dla import DLAModelConfig
+    from object_detector.encode_decode.impl.centernet import CenternetDetectionEncoderDecoderConfig
+    from object_detector.modelling.head.centernet_detection import CenternetDetectionHeadConfig
+
+    dla_config = DLAModelConfig(name='dla34', type='dla34')
     dla_upsampling_config = None
-    centernet_detection_heads = None
-    centernet_bbox_encode_decode_config = None
+    centernet_detection_heads = CenternetDetectionHeadConfig(categories_count=1,
+                                                             conv_in_channels=512,
+                                                             name='centernet_detection_head')
+    centernet_bbox_encode_decode_config = CenternetDetectionEncoderDecoderConfig()
     centernet_detection_loss_config = None
 
+    '''
+        .stage(dla_upsampling_config) \
+            .input(dla_config.get_outputs(strides=(4, 8, 16, 32))) \
+            .output(dla_upsampling_config.get_outputs()) \
+        .end_stage() \
+    '''
     detector = DetectorPipelineBuilder() \
             .stage(dla_config) \
-                .input({'image'}) \
+                .input(['image']) \
                 .output(dla_config.get_outputs(strides=(4, 8, 16, 32))) \
             .end_stage() \
-            .stage(dla_upsampling_config) \
-                .input(dla_config.get_outputs(strides=(4, 8, 16, 32))) \
-                .output(dla_upsampling_config.get_outputs()) \
-            .end_stage() \
             .stage(centernet_detection_heads) \
-                .input(dla_upsampling_config.get_outputs()) \
+                .input(dla_config.get_outputs()) \
                 .output(centernet_detection_heads.get_outputs()) \
                 .encode_decode(centernet_bbox_encode_decode_config) \
                 .loss(centernet_detection_loss_config) \

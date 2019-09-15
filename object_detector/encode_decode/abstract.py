@@ -1,27 +1,28 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Dict, Any
+
+import torch
 
 
-class EncodeDecodeModel(ABC):
+class Encoder(ABC):
     @abstractmethod
-    def encode(self):
+    def encode(self, gt: dict) -> Dict[str, torch.Tensor]:
         pass
 
-    @abstractmethod
-    def decode(self):
-        pass
 
+class Decoder(ABC):
+    @abstractmethod
+    def decode(self, predicted: Dict[str, torch.Tensor]) -> Dict[Any, Any]:
+        pass
 
 
 @dataclass
-class Detector:
-    l
+class EncoderDecoderConfig(ABC):
+    @abstractmethod
+    def create_encoder(self) -> Encoder:
+        pass
 
-
-data_loader = DataLoader()
-
-
-
-for data in data_loader:
-    images, gt = data
-    predicted = model(images)
+    @abstractmethod
+    def create_decoder(self) -> Decoder:
+        pass

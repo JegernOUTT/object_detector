@@ -3,8 +3,6 @@ from typing import Union, Tuple, List
 import numpy as np
 from dataclasses import dataclass
 
-from object_detector.tools.keypoint.keypoints import Keypoints
-from object_detector.tools.mask.mask import Mask
 from object_detector.tools.structs import Size2D
 
 BboxIterableType = Union[Tuple[float, float, float, float], List[float], np.ndarray]
@@ -13,8 +11,8 @@ BboxIterableType = Union[Tuple[float, float, float, float], List[float], np.ndar
 @dataclass(frozen=True)
 class Bbox:
     xyxy: np.ndarray
-    mask: Union[None, Mask] = None
-    keypoints: Union[None, Keypoints] = None
+    mask: Union[None, 'Mask'] = None
+    keypoints: Union[None, 'Keypoints'] = None
     meta: any = None
 
     def _clip_coords(self):

@@ -2,7 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Union
+from typing import List, Union, Dict, Tuple
 
 import torch
 
@@ -16,8 +16,6 @@ class InitializeType(Enum):
 @dataclass
 class BaseModelParams(ABC):
     name: str
-    input_layers_names: Union[str, List[str]]
-    output_layers_names: Union[str, List[str]]
 
 
 @dataclass
@@ -44,23 +42,62 @@ class AbstractModelParams(BaseModelParams, CommonModelParams, CheckpointsParams,
     pass
 
 
+@dataclass
+class BaseModelConfig:
+    name: str
+
+    def get_outputs(self, strides: Union[None, Tuple] = None) -> List[str]:
+        if strides is not None:
+            return self._get_outputs_by_strides(strides=strides)
+        else:
+            return self._get_all_outputs()
+
+    @abstractmethod
+    def create_module(self) -> 'AbstractModel':
+        pass
+
+    @abstractmethod
+    def _get_outputs_by_strides(self, strides: Tuple) -> List[str]:
+        pass
+
+    @abstractmethod
+    def _get_all_outputs(self) -> List[str]:
+        pass
+
+
 class AbstractModel(ABC, torch.nn.Module):
     def __init__(self, params: BaseModelParams):
         super().__init__()
         self._name = params.name
-        self._possible_inputs = []
-        self._possible_outputs = []
-        self._output_names = []
-        self._inputs_names = []
+        self._possible_inputs: Dict[str, int] = {}
+        self._possible_outputs: Dict[str, int] = {}
+        self._output_names: List[str] = []
+        self._inputs_names: List[str] = []
 
-    def get_name(self) -> str:
+        self._current_outputs: Dict[str, torch.Tensor] = {}
+
+    @property
+    def name(self) -> str:
         return self._name
 
-    def _add_possible_input(self, module: torch.nn.Module, stride: int):
-        self._possible_inputs.append((module, stride))
+    def _add_possible_input(self, name: str, stride: int):
+        self._possible_inputs[name] = stride
 
-    def _add_possible_output(self, module: torch.nn.Module, stride: int):
-        self._possible_outputs.append((module, stride))
+    def _add_possible_output(self, name: str, stride: int):
+        self._possible_outputs[name] = stride
+
+    def _infer_and_save_if_needed(
+            self, layer_name: str, input: torch.Tensor) -> torch.Tensor:
+        x = getattr(self, layer_name)(input)
+        if layer_name in self._output_names:
+            self._current_outputs[layer_name] = x
+        return x
+
+    def _pop_saved_output(self) -> Dict[str, torch.Tensor]:
+        outputs = {f'{self._name}/{name}': tensor
+                   for name, tensor in self._current_outputs.items()}
+        self._current_outputs.clear()
+        return outputs
 
     def set_inputs(self, inputs_names: List[str]):
         self._inputs_names = inputs_names
